@@ -1,0 +1,27 @@
+From 7c73d2f6914c86e71858ff5d679b627758bd2db4 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jos=C3=A9=20Manuel=20D=C3=ADez?= <j.diezlopez@tu-berlin.de>
+Date: Thu, 29 Feb 2024 14:17:23 +0100
+Subject: [PATCH] Fix error when linking Rust programs
+
+See https://lore.kernel.org/all/CANUMPcUK6VLHj18e3Kq2qOx00noBubLGScPpWOyobkHT+cGvdw@mail.gmail.com/
+---
+ meta/recipes-devtools/rust/rust_1.68.2.bb | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/meta/recipes-devtools/rust/rust_1.68.2.bb b/meta/recipes-devtools/rust/rust_1.68.2.bb
+index 83f9bec68a..47a7c6fdc2 100644
+--- a/meta/recipes-devtools/rust/rust_1.68.2.bb
++++ b/meta/recipes-devtools/rust/rust_1.68.2.bb
+@@ -134,6 +134,9 @@ python do_configure() {
+     # Whether or not to optimize the compiler and standard library
+     config.set("rust", "optimize", e(True))
+ 
++    # Use CCLD as the linker
++    config.set("rust", "default-linker", e(d.expand("${RUST_BUILD_CCLD}")))
++
+     # Emits extraneous output from tests to ensure that failures of the test
+     # harness are debuggable just from logfiles
+     config.set("rust", "verbose-tests", e(True))
+-- 
+2.25.1
+

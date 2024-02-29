@@ -1,0 +1,51 @@
+header:
+  version: 13
+
+distro: poky
+machine: qemuarm64
+
+repos:
+  poky:
+    url: http://git.yoctoproject.org/poky
+    branch: mickledore
+    layers:
+      meta:
+      meta-poky:
+
+    patches:
+      rust-fix:
+        repo: raccoon
+        path: patches/poky/0001-Fix-error-when-linking-Rust-programs.patch
+
+
+  openembedded:
+    url: https://github.com/openembedded/meta-openembedded
+    branch: mickledore
+    layers:
+      meta-oe:
+      meta-python:
+
+  ros:
+    url: https://github.com/jdiez17/meta-ros
+    branch: mickledore 
+    layers:
+      meta-ros-common:
+      meta-ros2:
+      meta-ros2-humble:
+
+  raccoon:
+    layers:
+      meta-raccoon:
+
+local_conf_header:
+  ros: |
+    ROS_DISTRO := "humble"
+    ROS_VERSION := "2"
+
+    IMAGE_INSTALL:append = " ros-core demo-nodes-cpp"
+
+  dev: |
+    EXTRA_IMAGE_FEATURES += "debug-tweaks"
+
+target:
+  - core-image-minimal
