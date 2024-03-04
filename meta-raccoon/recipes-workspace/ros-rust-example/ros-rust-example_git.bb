@@ -1,6 +1,7 @@
 # Recipe created by recipetool
 # This is the basis of a recipe and may need further editing in order to be fully functional.
 # (Feel free to remove these comments when editing.)
+
 LICENSE = "Apache-2.0 & Unknown"
 LIC_FILES_CHKSUM = "file://src/ros2/common_interfaces/LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57 \
                     file://src/ros2/common_interfaces/sensor_msgs_py/LICENSE;md5=beb995861a4848002f265f16e172ce6d \
@@ -17,12 +18,37 @@ DEPENDS = "\
         python3-colcon-ros-native \
         python3-colcon-cargo-native \
         python3-colcon-ros-cargo-native \
+	python3-colcon-package-selection \
+	python3-colcon-package-selection-native \
         cargo-ament-build-native \
         ament-cmake-native \
+	ament-cmake-core-native \
         ament-package-native \
         ament-package \
 	ros-workspace \
+	rosidl-generator-c \
+	rosidl-generator-c-native \
+	rosidl-adapter \
+	rosidl-adapter-native \
+	rosidl-typesupport-introspection-c \
+	rosidl-typesupport-introspection-c-native \
+	rosidl-typesupport-c \
+	rosidl-typesupport-c-native \
+	ament-lint-auto \
+	ament-lint-native \
+	ament-cmake-cppcheck \
+	ament-cmake-cppcheck-native \
+	ament-cpplint-native \
+	ament-cmake-cpplint \
+	ament-cmake-uncrustify \
+	ament-uncrustify-native \
+	rmw-implementation-cmake \
+	rmw-implementation-cmake-native \
+	rmw \
+	rmw-native \
 "
+
+inherit ros_ament_cmake
 
 # Modify these as desired
 PV = "1.0+git${SRCPV}"
@@ -38,7 +64,11 @@ do_configure () {
 }
 
 do_compile () {
-	export AMENT_PREFIX_PATH="${STAGING_DATADIR}/ros_workspace"
+	#export AMENT_PREFIX_PATH="${STAGING_DATADIR}/ros_workspace"
+	#export AMENT_PREFIX_PATH="${STAGING_DIR_HOST}${prefix}" #;${STAGING_DIR_NATIVE}${prefix}"
+	#export AMENT_PREFIX_PATH="${STAGING_DIR_HOST}${prefix};${STAGING_DIR_NATIVE}${prefix}"
+	${PYTHON_PN} -c "import sys; print(sys.path)"
+	cd "${S}"
 	colcon build --packages-up-to example_rust_node
 }
 
