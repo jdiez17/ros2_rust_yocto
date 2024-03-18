@@ -1,0 +1,21 @@
+From 6111fb6af84357b44034234cd47bb956de335d36 Mon Sep 17 00:00:00 2001
+From: Kas User <kas@example.com>
+Date: Wed, 13 Mar 2024 15:02:58 +0000
+Subject: [PATCH] Remove error on target flag
+
+---
+ src/main.rs | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/src/main.rs b/src/main.rs
+index dd4ab71..3eb977d 100644
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -47,7 +47,6 @@ fn fallible_main() -> Result<bool> {
+         no_binaries && no_exported_libraries
+     };
+     if let Some(target) = args.rust_target {
+-        return Err(anyhow!("target rust {}", target));
+         args.forwarded_args.push(format!("--target {}", target).into());
+     };
+ 

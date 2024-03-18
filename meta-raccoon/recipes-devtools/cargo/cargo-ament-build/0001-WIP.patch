@@ -1,0 +1,55 @@
+From a4894cea35ab193c1c4be71a81944eb03dc3f13c Mon Sep 17 00:00:00 2001
+From: Kas User <kas@example.com>
+Date: Wed, 13 Mar 2024 14:48:25 +0000
+Subject: [PATCH] WIP
+
+---
+ src/lib.rs  | 8 ++++++++
+ src/main.rs | 5 +++++
+ 2 files changed, 13 insertions(+)
+
+diff --git a/src/lib.rs b/src/lib.rs
+index ab7ca6f..a633a0f 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -15,6 +15,8 @@ pub struct Args {
+     pub install_base: PathBuf,
+     /// The build base for this package, corresponding to the --target-dir option
+     pub build_base: PathBuf,
++    /// The Rust target that will be used to build the binaries.
++    pub rust_target: Option<String>,
+     /// Arguments to be forwarded to `cargo build`.
+     pub forwarded_args: Vec<OsString>,
+     /// "debug", "release" etc.
+@@ -73,9 +75,15 @@ impl ArgsOrHelp {
+                 .context("Package manifest does not exist")?
+         };
+ 
++        let rust_target = if let Ok(target) = args.value_from_str("--rust-target") {
++            println!("GOT RUST TARGET {}", target);
++            Some(target) 
++        } else { None };
++
+         let res = Args {
+             install_base,
+             build_base,
++            rust_target,
+             forwarded_args,
+             profile,
+             manifest_path,
+diff --git a/src/main.rs b/src/main.rs
+index 415d2b1..dd4ab71 100644
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -46,6 +46,11 @@ fn fallible_main() -> Result<bool> {
+         };
+         no_binaries && no_exported_libraries
+     };
++    if let Some(target) = args.rust_target {
++        return Err(anyhow!("target rust {}", target));
++        args.forwarded_args.push(format!("--target {}", target).into());
++    };
++
+     let verb = if is_pure_library { "check" } else { "build" };
+     let exitcode = cargo(&args.forwarded_args, verb)?
+         .ok_or_else(|| anyhow!("'cargo {}' was terminated by signal.", verb))?;

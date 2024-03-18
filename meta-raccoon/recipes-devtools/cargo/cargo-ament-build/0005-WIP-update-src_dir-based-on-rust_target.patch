@@ -1,0 +1,54 @@
+From 85133ee9bdfd5336a61ad82d5cef59992dc587c9 Mon Sep 17 00:00:00 2001
+From: Kas User <kas@example.com>
+Date: Wed, 13 Mar 2024 15:40:56 +0000
+Subject: [PATCH] WIP update src_dir based on rust_target
+
+---
+ src/lib.rs  | 8 +++++++-
+ src/main.rs | 3 ++-
+ 2 files changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/src/lib.rs b/src/lib.rs
+index a633a0f..01b32f4 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -217,11 +217,17 @@ pub fn install_package(
+ pub fn install_binaries(
+     install_base: impl AsRef<Path>,
+     build_base: impl AsRef<Path>,
++    rust_target: &Option<String>,
+     package_name: &str,
+     profile: &str,
+     binaries: &[Product],
+ ) -> Result<()> {
+-    let src_dir = build_base.as_ref().join(profile);
++    let mut src_dir = build_base.as_ref().to_path_buf();
++    if let Some(target) = rust_target {
++        src_dir = src_dir.join(target);
++    }
++    src_dir = src_dir.join(profile);
++
+     let dest_dir = install_base.as_ref().join("lib").join(package_name);
+     if dest_dir.is_dir() {
+         std::fs::remove_dir_all(&dest_dir)?;
+diff --git a/src/main.rs b/src/main.rs
+index db052d5..85db222 100644
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -46,7 +46,7 @@ fn fallible_main() -> Result<bool> {
+         };
+         no_binaries && no_exported_libraries
+     };
+-    if let Some(target) = args.rust_target {
++    if let Some(ref target) = args.rust_target {
+         args.forwarded_args.push("--target".into());
+         args.forwarded_args.push(target.into());
+     };
+@@ -81,6 +81,7 @@ fn fallible_main() -> Result<bool> {
+     install_binaries(
+         &args.install_base,
+         &args.build_base,
++        &args.rust_target,
+         package_name,
+         &args.profile,
+         // Unwrap is safe since complete_from_path() has been called

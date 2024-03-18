@@ -1,0 +1,22 @@
+From 326dc9ed1c0d503418645f0f39c7770ddd34d2ec Mon Sep 17 00:00:00 2001
+From: Kas User <kas@example.com>
+Date: Wed, 13 Mar 2024 15:07:16 +0000
+Subject: [PATCH] Make args mutable
+
+---
+ src/main.rs | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/main.rs b/src/main.rs
+index 3eb977d..0761c03 100644
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -22,7 +22,7 @@ fn main() {
+ /// build/check may have failed), and a boolean indicating the cargo build/check
+ /// status.
+ fn fallible_main() -> Result<bool> {
+-    let args = match ArgsOrHelp::parse()? {
++    let mut args = match ArgsOrHelp::parse()? {
+         ArgsOrHelp::Args(args) => args,
+         ArgsOrHelp::Help => {
+             ArgsOrHelp::print_help();

@@ -1,0 +1,31 @@
+From c60eed50b6b9690833d799967a5b571fbb885b11 Mon Sep 17 00:00:00 2001
+From: Kas User <kas@example.com>
+Date: Wed, 13 Mar 2024 12:57:32 +0000
+Subject: [PATCH] Add support for passing a Rust target to ament_cargo
+
+---
+ colcon_ros_cargo/task/ament_cargo/build.py | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/colcon_ros_cargo/task/ament_cargo/build.py b/colcon_ros_cargo/task/ament_cargo/build.py
+index 25dece0..3843df4 100644
+--- a/colcon_ros_cargo/task/ament_cargo/build.py
++++ b/colcon_ros_cargo/task/ament_cargo/build.py
+@@ -45,6 +45,9 @@ class AmentCargoBuildTask(CargoBuildTask):
+             'By default, dependencies are looked up only in the installation '
+             'prefixes. This option is useful for setting up a '
+             '.cargo/config.toml for subsequent builds with cargo.')
++        parser.add_argument(
++            '--rust-target',
++            help='Specify a Rust target.')
+ 
+     def _prepare(self, env, additional_hooks):
+         args = self.context.args
+@@ -83,6 +86,7 @@ class AmentCargoBuildTask(CargoBuildTask):
+         return [
+             CARGO_EXECUTABLE, 'ament-build',
+             '--install-base', args.install_base,
++            '--rust-target', args.rust_target,
+             '--',
+             '--manifest-path', manifest_path,
+             '--target-dir', args.build_base,
