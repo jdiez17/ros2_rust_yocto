@@ -2,7 +2,8 @@ header:
   version: 13
 
 distro: poky
-machine: qemuarm64
+#machine: qemuarm64
+machine: qemux86-64
 
 repos:
   poky:
@@ -12,18 +13,25 @@ repos:
       meta:
       meta-poky:
 
-    patches:
-      rust-fix:
-        repo: raccoon
-        path: patches/poky/0001-Fix-error-when-linking-Rust-programs.patch
-
-
   openembedded:
     url: https://github.com/openembedded/meta-openembedded
     branch: mickledore
     layers:
       meta-oe:
       meta-python:
+
+  meta-lts-mixin:
+    url: https://git.yoctoproject.org/meta-lts-mixins
+    branch: kirkstone/rust-1.70
+    layers:
+      .:
+
+  # Needed for bindgen, which is used by rclrs
+  meta-clang:
+    url: https://github.com/kraj/meta-clang
+    branch: mickledore
+    layers:
+      .:
 
   ros:
     url: https://github.com/jdiez17/meta-ros
@@ -42,10 +50,39 @@ local_conf_header:
     ROS_DISTRO := "humble"
     ROS_VERSION := "2"
 
+    RUSTVERSION = "1.70%"
     IMAGE_INSTALL:append = " ros-core demo-nodes-cpp"
+    IMAGE_INSTALL:append = " ros-rust-example"
+    IMAGE_INSTALL:append = " raccoon-ws"
+    IMAGE_INSTALL:append = " tmux pciutils usbutils kernel-modules"
+    #IMAGE_INSTALL:append = " example-messages"
+
+  sstate-mirror: |
+    BB_SIGNATURE_HANDLER = "OEEquivHash"
+    BB_HASHSERVE = "auto"
+    BB_HASHSERVE_UPSTREAM = "hashserv.yocto.io:8687"
+    SSTATE_MIRRORS ?= "file://.* https://sstate.yoctoproject.org/all/PATH;downloadfilename=PATH"
 
   dev: |
     EXTRA_IMAGE_FEATURES += "debug-tweaks"
+    PACKAGE_CLASSES = "package_ipk"
+    EXTRA_IMAGE_FEATURES += "package-management"
+
+  conf_version: |
+    CONF_VERSION = "2"
+
+  sdk: |
+    SDK_EXT_TYPE = "minimal"
+    SDK_INCLUDE_TOOLCHAIN = "1"
+
+    # TODO: remove when this ros error is fixed
+    # ERROR: Nothing RPROVIDES 'plansys2-problem-expert' (but /build/../work/ros/meta-ros2-humble/generated-recipes/ros2-planning-system/plansys2-tools_2.0.9-1.bb RDEPENDS on or otherwise requires it)
+    BBMASK += "\
+        meta-ros2-humble/generated-recipes/ros2-planning-system \
+        meta-ros2-humble/recipes-bbappends/ros2-planning-system \
+    "
+
+    SDK_INCLUDE_PKGDATA = "1"
 
 target:
   - core-image-minimal
